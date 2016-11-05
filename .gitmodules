@@ -1,0 +1,3 @@
+[submodule "Rust-Sense-Hat"]
+	path = Rust-Sense-Hat
+	url = git@github.com:CodeGradox/Rust-Sense-Hat.git
