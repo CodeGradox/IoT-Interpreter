@@ -142,7 +142,7 @@ int main(void) {
     Hex888 yellow;
     yellow.rgb = 0xa0a000;
     set_pixel_hex888(fb, 0, 3, &yellow);
-
+    
     /*uint8_t i, j;
     for (i = 0; i < 8; i++) {
         for (j = 0; j < 8; j++) {
@@ -172,7 +172,8 @@ int main(void) {
         sleepms(200);
     }*/
 
-    // clear(fb);
+    sleepms(1000);
+    clear(fb);
 
     return ret;
 }
