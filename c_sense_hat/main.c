@@ -17,6 +17,7 @@
 #include "sys/mman.h"
 
 #include "color.h"
+#include "RTIMULibWrapper.h"
 
 typedef struct {
     uint16_t pixels[8][8];
@@ -78,18 +79,27 @@ void set_pixel(framebuffer *fb, uint8_t x, uint8_t y, uint16_t color) {
     fb->pixels[y][x] = color;
 }
 
-void set_pixel_rgb(framebuffer *fb, uint8_t x, uint8_t y, Rgb *color) {
-    fb->pixels[y][x] = convert_rgb(color);
+void set_pixel_rgb(framebuffer *fb, uint8_t x, uint8_t y, uint8_t r, uint8_t g, uint8_t b) {
+    fb->pixels[y][x] = convert_rgb(r, g, b);
 }
 
-void set_pixel_hex565(framebuffer *fb, uint8_t x, uint8_t y, Hex565 *color) {
+void set_pixel_hex565(framebuffer *fb, uint8_t x, uint8_t y, uint16_t color) {
     fb->pixels[y][x] = convert_hex565(color);
 }
 
-void set_pixel_hex888(framebuffer *fb, uint8_t x, uint8_t y, Hex888 *color) {
+void set_pixel_hex888(framebuffer *fb, uint8_t x, uint8_t y, uint32_t color) {
     fb->pixels[y][x] = convert_hex888(color);
 }
 
+void set_pixels(framebuffer *fb, uint16_t color) {
+    uint16_t i, j;
+    uint16_t c = convert_hex565(color);
+    for (i = 0; i < 8; i++) {
+        for (j = 0; j < 8; j++) {
+            fb->pixels[i][j] = c;
+        }
+    }
+}
 
 void clear(framebuffer *fb) {
     // Sets all values in the mapping to zero.
@@ -126,23 +136,25 @@ int main(void) {
 
     clear(fb);
 
-    Hex565 red;
-    red.rgb = 0xF800;
-    set_pixel_hex565(fb, 0, 0, &red);
+    set_pixel_hex565(fb, 0, 0, 0xF800);
 
-    Rgb green;
-    green.r = 0; green.g = 255; green.b = 0;
+    set_pixel_rgb(fb, 0, 1, 0, 255, 0);
 
-    set_pixel_rgb(fb, 0, 1, &green);
+    set_pixel_hex888(fb, 0, 2, 0x0000FF);
 
-    Hex888 blue;
-    blue.rgb = 0x0000FF;
-    set_pixel_hex888(fb, 0, 2, &blue);
-
-    Hex888 yellow;
-    yellow.rgb = 0xa0a000;
-    set_pixel_hex888(fb, 0, 3, &yellow);
+    set_pixel_hex888(fb, 0, 3, 0x0A000);
     
+    set_pixels(fb, 0xFFFF);
+
+    // RTIMU TESTING
+    C_RTIMUSettings *s = C_RTIMUSettings_new("RTIMULib");
+
+    C_RTIMU * imu = C_RTIMU_new(s);
+
+    
+    C_RTIMU_destroy(imu);
+    C_RTIMUSettings_destroy(s);
+
     /*uint8_t i, j;
     for (i = 0; i < 8; i++) {
         for (j = 0; j < 8; j++) {
