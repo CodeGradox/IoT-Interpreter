@@ -1,11 +1,12 @@
 # The compiler to use
-CC = clang++
+CC = clang
+CXX = clang++
 
 # compiler flags
 # -g	add debugging information to the executable file
 # -Wall	turns on most compiler flags
 CFLAGS = -g -Wall
-OBJS = main.o color.o RTIMULibWrapper.o
+OBJS = main.o RTIMULibWrapper.o
 LDFLAGS += -lRTIMULib
 # $@ is the name of the executable. In this case it refers to 'all' which is set to be 'main'
 #PROG = main
@@ -19,17 +20,14 @@ LDFLAGS += -lRTIMULib
 #color.o: color.h RTIMULibWrapper.h
 #RTIMULibWrapper.o: RTIMULibWrapper.h
 
-all: main.o color.o RTIMULibWrapper.o
-	$(CC) $(LDFLAGS) $(CFLAGS) $(OBJS) -o prog
+all: main.o RTIMULibWrapper.o
+	$(CXX) $(LDFLAGS) $(CFLAGS) $(OBJS) -o prog
 
 main.o: main.c
-	clang $(CFLAGS) -c main.c -o main.o
-
-color.o: color.c color.h
-	clang $(CFLAGS) -c color.c -o color.o
+	$(CC) $(CFLAGS) -c main.c -o main.o
 
 RTIMULibWrapper.o: RTIMULibWrapper.cpp RTIMULibWrapper.h
-	$(CC) $(CFLAGS) -c RTIMULibWrapper.cpp -o RTIMULibWrapper.o
+	$(CXX) $(CFLAGS) -c RTIMULibWrapper.cpp -o RTIMULibWrapper.o
 
 
 clean:
