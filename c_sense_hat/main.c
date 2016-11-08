@@ -120,16 +120,32 @@ int main(void) {
         return ret;
     }
 
-    // RTIMU TESTING
+    // Setup RTIMU settings, imu and sensors
     C_RTIMUSettings *s = C_RTIMUSettings_new("RTIMULib");
-
     C_RTIMU * imu = C_RTIMU_new(s);
+    C_RTPressure *pressure = C_create_pressure(s);
+    C_RTHumidity *humidity = C_create_humidity(s);
 
-    
+    imu_init(imu);
+    set_imu_config(imu, 0.02, TRUE, TRUE, TRUE);
+
+    pressure_init(pressure);
+    humidity_init(humidity);
+
+    if (imu_read(imu) == TRUE) {
+        printf("True\n");
+        C_RTIMU_DATA *imuData = get_imu_data(imu);
+
+        destroy_imu_data(imuData);
+    }
+
+    // Clean up (aka call class destructors)
+    C_RTHumidity_destroy(humidity);
+    C_RTPressure_destroy(pressure);
     C_RTIMU_destroy(imu);
     C_RTIMUSettings_destroy(s);
 
-    test1(fb);
+    //test1(fb);
 
     return ret;
 }
