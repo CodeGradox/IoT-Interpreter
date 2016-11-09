@@ -1,3 +1,6 @@
+#ifndef RTIMULIB_WRAPPER_H
+#define RTIMULIB_WRAPPER_H
+
 #include "stdint.h"
 
 enum boolean {
@@ -16,28 +19,6 @@ typedef struct C_RTPressure C_RTPressure;
 
 struct C_RTHumidity;
 typedef struct C_RTHumidity C_RTHumidity;
-
-struct _C_RTIMU_DATA {
-    uint64_t timestamp;
-    enum boolean fusionPoseValid; // bool
-    float fusionPose[3];
-    enum boolean fusionQPoseValid; // bool
-    // fusionQPose;
-    enum boolean gyroValid;
-    // gyro;
-    enum boolean accelValid;
-    // accel;
-    enum boolean compassValid;
-    // compass;
-    enum boolean pressureValid;
-    float pressure;
-    enum boolean temperatureValid;
-    float temperature;
-    enum boolean humidityValid;
-    float humidity;
-
-};
-typedef struct _C_RTIMU_DATA _C_RTIMU_DATA;
 
 struct C_RTIMU_DATA;
 typedef struct C_RTIMU_DATA C_RTIMU_DATA;
@@ -72,4 +53,6 @@ C_RTHumidity * C_create_humidity(C_RTIMUSettings *s);
 void C_RTHumidity_destroy(C_RTHumidity *p);
 // Set up the humidity sensor
 void humidity_init(C_RTHumidity *h);
+
+#endif
 
