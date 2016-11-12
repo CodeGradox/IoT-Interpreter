@@ -121,10 +121,16 @@ int main(void) {
     }
 
     // Setup RTIMU settings, imu and sensors
-    C_RTIMUSettings *s = C_RTIMUSettings_new("RTIMULib");
-    C_RTIMU * imu = C_RTIMU_new(s);
-    C_RTPressure *pressure = C_create_pressure(s);
-    C_RTHumidity *humidity = C_create_humidity(s);
+    C_RTIMUSettings *settings = NULL;
+    C_RTIMU *imu = NULL;
+    C_RTPressure *pressure = NULL;
+    C_RTHumidity *humidity = NULL;
+    C_RTIMU_DATA *data = NULL;
+
+    settings = C_RTIMUSettings_new("RTIMULib");
+    imu = C_RTIMU_new(settings);
+    pressure = C_create_pressure(settings);
+    humidity = C_create_humidity(settings);
 
     imu_init(imu);
     set_imu_config(imu, 0.02, TRUE, TRUE, TRUE);
@@ -134,16 +140,16 @@ int main(void) {
 
     if (imu_read(imu) == TRUE) {
         printf("True\n");
-        C_RTIMU_DATA *imuData = get_imu_data(imu);
+        data = get_imu_data(imu);
 
-        destroy_imu_data(imuData);
+        destroy_imu_data(data);
     }
 
     // Clean up (aka call class destructors)
     C_RTHumidity_destroy(humidity);
     C_RTPressure_destroy(pressure);
     C_RTIMU_destroy(imu);
-    C_RTIMUSettings_destroy(s);
+    C_RTIMUSettings_destroy(settings);
 
     //test1(fb);
 
