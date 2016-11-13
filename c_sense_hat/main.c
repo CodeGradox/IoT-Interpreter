@@ -121,16 +121,11 @@ int main(void) {
     }
 
     // Setup RTIMU settings, imu and sensors
-    C_RTIMUSettings *settings = NULL;
-    C_RTIMU *imu = NULL;
-    C_RTPressure *pressure = NULL;
-    C_RTHumidity *humidity = NULL;
-    C_RTIMU_DATA *data = NULL;
-
-    settings = C_RTIMUSettings_new("RTIMULib");
-    imu = C_RTIMU_new(settings);
-    pressure = C_create_pressure(settings);
-    humidity = C_create_humidity(settings);
+    C_RTIMUSettings *settings = C_RTIMUSettings_new("RTIMULib");
+    C_RTIMU *imu = C_RTIMU_new(settings);
+    C_RTPressure *pressure = C_create_pressure(settings);
+    C_RTHumidity *humidity = C_create_humidity(settings);
+    C_RTIMU_DATA *data;
 
     imu_init(imu);
     set_imu_config(imu, 0.02, TRUE, TRUE, TRUE);
@@ -139,8 +134,20 @@ int main(void) {
     humidity_init(humidity);
 
     if (imu_read(imu) == TRUE) {
-        printf("True\n");
+        printf("--Running--\n");
         data = get_imu_data(imu);
+        if (pressure != NULL) {
+            pressure_read(pressure, data);
+            float pre = pressure_get(data);
+            printf("pressure: %f\n", pre);
+        }
+        if (humidity != NULL) {
+            humidity_read(humidity, data);
+            float hum = humidity_get(data);
+            printf("humidity: %f\n", hum);
+        }
+        float temp = temperature_get(data);
+        printf("temperature: %f", temp);
 
         destroy_imu_data(data);
     }

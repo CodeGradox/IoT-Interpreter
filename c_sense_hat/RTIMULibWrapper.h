@@ -48,12 +48,20 @@ C_RTPressure * C_create_pressure(C_RTIMUSettings *s);
 int C_RTPressure_destroy(C_RTPressure *p);
 // Set up the pressure sensor
 int pressure_init(C_RTPressure *p);
+int pressure_read(C_RTPressure *p, C_RTIMU_DATA *data);
+float pressure_get(C_RTIMU_DATA *data);
 
 // Humidity
 C_RTHumidity * C_create_humidity(C_RTIMUSettings *s);
 int C_RTHumidity_destroy(C_RTHumidity *p);
 // Set up the humidity sensor
 int humidity_init(C_RTHumidity *h);
+// Writes the humidity into the data struct
+int humidity_read(C_RTHumidity *h, C_RTIMU_DATA *data);
+float humidity_get(C_RTIMU_DATA *data);
+
+// Temperature
+float temperature_get(C_RTIMU_DATA *data);
 
 #endif
 
