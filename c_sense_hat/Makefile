@@ -10,8 +10,8 @@ CXX = clang++
 # -std=c++14
 # -pedantic	check if the program follows the C ISO spesifications
 # -O2		Compiler optimization
-CFLAGS = -g -Wall -Wextra -std=c11 -pedantic -O2
-CXXFLAGS = -g -Wall -Wextra -std=c++14 -pedantic -O2
+CFLAGS = -g -Wall -Wextra -m32 -std=c11 -pedantic -O2
+CXXFLAGS = -g -Wall -Wextra -m32 -std=c++14 -pedantic -O2
 # Required to compile RTIMULib.h
 LDFLAGS += -lRTIMULib
 OBJS = main.o RTIMULibWrapper.o

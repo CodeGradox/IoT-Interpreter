@@ -147,12 +147,14 @@ int main(void) {
             printf("humidity: %f\n", hum);
         }
         float temp = temperature_get(data);
-        printf("temperature: %f", temp);
+        printf("temperature: %f\n", temp);
 
         destroy_imu_data(data);
     }
 
     // Clean up (aka call class destructors)
+    // It is safe to delete the pointers
+    // even if they happen to be NULL
     C_RTHumidity_destroy(humidity);
     C_RTPressure_destroy(pressure);
     C_RTIMU_destroy(imu);
