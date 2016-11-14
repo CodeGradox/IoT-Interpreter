@@ -14,16 +14,16 @@ CFLAGS = -g -Wall -Wextra -m32 -std=c11 -pedantic -O2
 CXXFLAGS = -g -Wall -Wextra -m32 -std=c++14 -pedantic -O2
 # Required to compile RTIMULib.h
 LDFLAGS += -lRTIMULib
-OBJS = main.o RTIMULibWrapper.o
+OBJS = main.o SenseHatSensors.o
 
-all: main.o RTIMULibWrapper.o
+all: main SenseHatSensors
 	$(CXX) $(LDFLAGS) $(CXXFLAGS) $(OBJS) -o prog
 
-main.o: main.c
+main: main.c
 	$(CC) $(CFLAGS) -c main.c -o main.o
 
-RTIMULibWrapper.o: RTIMULibWrapper.cpp RTIMULibWrapper.h
-	$(CXX) $(CXXFLAGS) -c RTIMULibWrapper.cpp -o RTIMULibWrapper.o
+SenseHatSensors: SenseHatSensors.cpp SenseHatSensors.h
+	$(CXX) $(CXXFLAGS) -c SenseHatSensors.cpp -o SenseHatSensors.o
 
 clean:
 	rm -f *.o prog core a.out

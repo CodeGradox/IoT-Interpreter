@@ -16,7 +16,7 @@
 #include "linux/fb.h"
 #include "sys/mman.h"
 
-#include "RTIMULibWrapper.h"
+#include "SenseHatSensors.h"
 
 typedef struct {
     uint16_t pixels[8][8];
@@ -68,7 +68,7 @@ static int open_fbdev(const char *dev_name) {
     for (i = 0; i < ndev; i++) {
         free(namelist[i]);
     }
-    
+
     return fd;
 }
 
@@ -87,6 +87,13 @@ void set_pixels(framebuffer *fb, uint16_t color) {
     }
 }
 
+void set_image(framebuffer *fb, uint16_t image[64]) {
+    int i;
+    for (i = 0; i < 64; i++) {
+        fb->pixels[i / 8][i % 8] = image[i];
+    }
+}
+
 void clear(framebuffer *fb) {
     // Sets all values in the mapping to zero.
     // In other words, clears the screen.
@@ -97,72 +104,64 @@ void sleepms(useconds_t time) {
     usleep(1000 * time);
 }
 
-int main(void) {
-    int ret = 0;
-    // framebuffer file descriptor
-    int fbfd = 0;
-    framebuffer *fb;
-    
-    fbfd = open_fbdev("RPi-Sense FB");
-    if (fbfd <= 0) {
-        ret = fbfd;
-        printf("Error: cannot open framebuffer device.\n");
-        return ret;
-    }
+void draw_ok(framebuffer *fb) {
+    uint16_t g = 0x07E0; // green
+    uint16_t b = 0x0000; // blank
+    uint16_t ok[64] = {
+        g, g, g, b, g, b, b, g,
+        g, b, g, b, g, b, g, b,
+        g, b, g, b, g, g, b, b,
+        g, b, g, b, g, b, g, b,
+        g, g, g, b, g, b, b, g,
+        b, b, b, b, b, b, b, b,
+        b, b, b, b, b, b, b, b,
+        b, b, b, b, b, b, b, b};
+    set_image(fb, ok);
+}
 
-    // Create a mapping in the virtual address space for this process.
-    // Maps the device into memory.
-    fb =  (framebuffer *) mmap(0, 128, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
-    if (!fb) {
-        ret = EXIT_FAILURE;
-        printf("Failed to mmap the device.\n");
-        close(fbfd);
-        return ret;
-    }
+void draw_err(framebuffer *fb) {
+    uint16_t r = 0xF800; // red
+    uint16_t b = 0x0000; // blank
+    uint16_t ok[64] = {
+        r, r, b, b, b, b, b, b,
+        r, b, b, b, b, b, b, b,
+        r, r, b, r, r, b, r, r,
+        r, b, b, r, b, b, r, b,
+        r, r, b, r, b, b, r, b,
+        b, b, b, b, b, b, b, b,
+        b, b, b, b, b, b, b, b,
+        b, b, b, b, b, b, b, b};
+    set_image(fb, ok);
+}
 
-    // Setup RTIMU settings, imu and sensors
-    C_RTIMUSettings *settings = C_RTIMUSettings_new("RTIMULib");
-    C_RTIMU *imu = C_RTIMU_new(settings);
-    C_RTPressure *pressure = C_create_pressure(settings);
-    C_RTHumidity *humidity = C_create_humidity(settings);
-    C_RTIMU_DATA *data;
+void draw_smile(framebuffer *fb) {
+    uint16_t c = 0x041F; // blue
+    uint16_t b = 0x0000; // blank
+    uint16_t ok[64] = {
+        b, b, c, c, c, c, b, b,
+        b, c, b, b, b, b, c, b,
+        c, b, c, b, b, c, b, c,
+        c, b, b, b, b, b, b, c,
+        c, b, c, b, b, c, b, c,
+        c, b, b, c, c, b, b, c,
+        b, c, b, b, b, b, c, b,
+        b, b, c, c, c, c, b, b};
+    set_image(fb, ok);
+}
 
-    imu_init(imu);
-    set_imu_config(imu, 0.02, TRUE, TRUE, TRUE);
-
-    pressure_init(pressure);
-    humidity_init(humidity);
-
-    if (imu_read(imu) == TRUE) {
-        printf("--Running--\n");
-        data = get_imu_data(imu);
-        if (pressure != NULL) {
-            pressure_read(pressure, data);
-            float pre = pressure_get(data);
-            printf("pressure: %f\n", pre);
-        }
-        if (humidity != NULL) {
-            humidity_read(humidity, data);
-            float hum = humidity_get(data);
-            printf("humidity: %f\n", hum);
-        }
-        float temp = temperature_get(data);
-        printf("temperature: %f\n", temp);
-
-        destroy_imu_data(data);
-    }
-
-    // Clean up (aka call class destructors)
-    // It is safe to delete the pointers
-    // even if they happen to be NULL
-    C_RTHumidity_destroy(humidity);
-    C_RTPressure_destroy(pressure);
-    C_RTIMU_destroy(imu);
-    C_RTIMUSettings_destroy(settings);
-
-    //test1(fb);
-
-    return ret;
+void draw_bluetooth(framebuffer *fb) {
+    uint16_t c = 0x041F; // white
+    uint16_t b = 0xFFFF; // blue
+    uint16_t ok[64] = {
+        b, b, b, b, b, c, c, c,
+        c, b, c, c, b, c, c, c,
+        c, c, b, c, b, c, c, c,
+        c, c, c, b, b, b, b, b,
+        c, b, b, b, b, c, c, b,
+        c, c, c, b, c, b, c, b,
+        c, c, c, b, c, c, b, b,
+        c, c, c, c, c, c, c, b};
+    set_image(fb, ok);
 }
 
 void test1(framebuffer *fb) {
@@ -180,14 +179,14 @@ void test1(framebuffer *fb) {
         }
         sleepms(200);
     }
-    
+
     for (i = 7; i != 255 ; i--) {
         for (j = 0; j < 8; j++) {
             set_pixel(fb, i, j, 0x041F);
         }
         sleepms(200);
     }
-    
+
     for (i = 7; i != 255; i--) {
         for (j = 7; j != 255; j--) {
             set_pixel(fb, j, i, 0x87E0);
@@ -198,3 +197,44 @@ void test1(framebuffer *fb) {
     sleepms(500);
     clear(fb);
 }
+
+int main(void) {
+    int ret = 0;
+    // framebuffer file descriptor
+    int fbfd = 0;
+    framebuffer *fb;
+
+    fbfd = open_fbdev("RPi-Sense FB");
+    if (fbfd <= 0) {
+        ret = fbfd;
+        printf("Error: cannot open framebuffer device.\n");
+        return ret;
+    }
+
+    // Create a mapping in the virtual address space for this process.
+    // Maps the device into memory.
+    fb =  (framebuffer *) mmap(0, 128, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
+    if (!fb) {
+        ret = EXIT_FAILURE;
+        printf("Failed to mmap the device.\n");
+        close(fbfd);
+        return ret;
+    }
+
+    SenseHatSensors *sense = SenseHatSensors_new();
+    float temp = get_temperature(sense);
+    printf("Temperature: %f\n", temp);
+
+    draw_ok(fb);
+    sleep(1);
+    draw_err(fb);
+    sleep(1);
+    draw_smile(fb);
+    sleep(1);
+    draw_bluetooth(fb);
+    sleep(1);
+    clear(fb);
+
+    return ret;
+}
+
