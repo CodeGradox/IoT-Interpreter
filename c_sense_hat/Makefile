@@ -6,25 +6,29 @@ CXX = clang++
 # -g		add debugging information to the executable file
 # -Wall		turns on most compiler flags
 # -Wextra	aditional error checking
-# -std=c11	
+# -std=c11
 # -std=c++14
 # -pedantic	check if the program follows the C ISO spesifications
 # -O2		Compiler optimization
 CFLAGS = -g -Wall -Wextra -m32 -std=c11 -pedantic -O2
 CXXFLAGS = -g -Wall -Wextra -m32 -std=c++14 -pedantic -O2
-# Required to compile RTIMULib.h
+# Link to the RTIMULib source
 LDFLAGS += -lRTIMULib
 OBJS = main.o SenseHatSensors.o
+MAIN = prog
 
-all: main SenseHatSensors
-	$(CXX) $(LDFLAGS) $(CXXFLAGS) $(OBJS) -o prog
 
-main: main.c
-	$(CC) $(CFLAGS) -c main.c -o main.o
+$(MAIN): $(OBJS)
+	$(CXX) $(LDFLAGS) $(CXXFLAGS) $(OBJS) -o $@
 
-SenseHatSensors: SenseHatSensors.cpp SenseHatSensors.h
-	$(CXX) $(CXXFLAGS) -c SenseHatSensors.cpp -o SenseHatSensors.o
+main:
+	$(CC) $(CFLAGS) -c $<
+
+SenseHatSensors: SenseHatSensors.h
+	$(CXX) $(CXXFLAGS) -c $<
 
 clean:
-	rm -f *.o prog core a.out
+	-$(RM) *.o
+	-$(RM) $(MAIN)
+	-$(RM) core
 
