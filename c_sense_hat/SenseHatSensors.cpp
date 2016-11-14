@@ -129,6 +129,13 @@ SenseHatSensors * SenseHatSensors_new(void) {
     }
 }
 
+void SenseHatSensors_delete(SenseHatSensors *sense) {
+    try {
+        Wrapper *wrapper = reinterpret_cast<Wrapper*>(sense);
+        delete wrapper;
+    } catch (...) {}
+}
+
 float get_humidity(SenseHatSensors *sense) {
     try {
         Wrapper *wrapper = reinterpret_cast<Wrapper*>(sense);

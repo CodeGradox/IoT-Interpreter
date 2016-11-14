@@ -234,7 +234,8 @@ int main(void) {
     draw_bluetooth(fb);
     sleep(1);
     clear(fb);
-
+    
+    SenseHatSensors_delete(sense);
     return ret;
 }
 
