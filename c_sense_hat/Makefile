@@ -10,8 +10,8 @@ CXX = clang++
 # -std=c++14
 # -pedantic	check if the program follows the C ISO spesifications
 # -O2		Compiler optimization
-CFLAGS = -g -Wall -Wextra -m32 -std=c11 -pedantic -O2
-CXXFLAGS = -g -Wall -Wextra -m32 -std=c++14 -pedantic -O2
+CFLAGS = -D HAL_QUIET=0 -Wall -Wextra -m32 -std=c11 -pedantic -O2
+CXXFLAGS = -D HAL_QUIET=0 -Wall -Wextra -m32 -std=c++14 -pedantic -O2
 # Link to the RTIMULib source
 LDFLAGS += -lRTIMULib
 OBJS = main.o SenseHatSensors.o

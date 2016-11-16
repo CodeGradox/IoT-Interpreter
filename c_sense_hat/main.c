@@ -221,11 +221,49 @@ int main(void) {
         return ret;
     }
 
-    SenseHatSensors *sense = SenseHatSensors_new();
-    float temp = get_temperature(sense);
-    printf("Temperature: %f\n", temp);
+    Orientation ori;
+    Coordinates cor;
 
-    draw_ok(fb);
+    SenseHatSensors *sense = SenseHatSensors_new();
+    if (sense == NULL) {
+        goto Err;
+    }
+
+    set_imu_config(sense, TRUE, TRUE, TRUE);
+
+    printf("Temperature: %f\n", get_temperature(sense));
+    printf("Temperature from humidity: %f\n", get_temperature_from_humidity(sense));
+    printf("Temperature from pressure: %f\n", get_temperature_from_pressure(sense));
+    printf("Humidity: %f\n", get_humidity(sense));
+    printf("Pressure: %f\n", get_pressure(sense));
+    
+    ori = get_orientation_radians(sense);
+    printf("Orientation radians: roll: %f, pitch:%f, yaw: %f\n", ori.roll, ori.pitch, ori.yaw);
+    
+    ori = get_orientation_degrees(sense);
+    printf("Orientation degrees: roll: %f, pitch:%f, yaw: %f\n", ori.roll, ori.pitch, ori.yaw);   
+
+    ori = get_orientation(sense);
+    printf("Orientation: roll: %f, pitch:%f, yaw: %f\n", ori.roll, ori.pitch, ori.yaw);
+    
+    printf("Compass: %f\n", get_compass(sense));   
+    
+    cor = get_compass_raw(sense);
+    printf("Compass raw: x: %f, y:%f, z: %f\n", cor.x, cor.y, cor.z);
+    
+    ori = get_gyroscope(sense);
+    printf("Gyroscope: roll: %f, pitch:%f, yaw: %f\n", ori.roll, ori.pitch, ori.yaw);
+ 
+    cor = get_gyroscope_raw(sense);
+    printf("Gyroscope raw: x: %f, y:%f, z: %f\n", cor.x, cor.y, cor.z);
+    
+    ori = get_accelerometer(sense);
+    printf("Accelerometer: roll: %f, pitch:%f, yaw: %f\n", ori.roll, ori.pitch, ori.yaw);
+    
+    cor = get_accelerometer_raw(sense); 
+    printf("Accelerometer raw: x: %f, y:%f, z: %f\n", cor.x, cor.y, cor.z);
+
+    /*draw_ok(fb);
     sleep(1);
     draw_err(fb);
     sleep(1);
@@ -233,9 +271,10 @@ int main(void) {
     sleep(1);
     draw_bluetooth(fb);
     sleep(1);
-    clear(fb);
-    
+    clear(fb);*/
+
     SenseHatSensors_delete(sense);
+Err:
     return ret;
 }
 
