@@ -2,7 +2,6 @@
 #define SENSE_HAT_WRAPPER
 
 #include "stdint.h"
-#include "math.h"
 
 typedef enum {
     TRUE = 1,

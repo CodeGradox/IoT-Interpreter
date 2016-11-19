@@ -1,4 +1,5 @@
 #include "RTIMULib.h"
+#include "cstdlib"
 
 extern "C" {
     #include "SenseHatSensors.h"
@@ -44,11 +45,17 @@ private:
     Orientation last_orientation;
     Coordinates last_gyro;
     Coordinates last_accel;
+
+    uint16_t frame[8][8];
 };
 
 /* Constructor*/
 Wrapper::Wrapper() {
-    settings = new RTIMUSettings("RTIMULib");
+    char ini_name[80];
+    snprintf(ini_name, sizeof(ini_name), "%s/.config/sense_hat/RTIMULib", std::getenv("HOME"));
+    printf("path: %s\n", ini_name);
+
+    settings = new RTIMUSettings(ini_name);
     imu = RTIMU::createIMU(settings);
     if ((imu == NULL) || (imu->IMUType() == RTIMU_TYPE_NULL)) {
         throw "No IMU found";

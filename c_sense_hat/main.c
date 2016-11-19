@@ -52,6 +52,7 @@ static int open_fbdev(const char *dev_name) {
         if (fd < 0) {
             continue;
         }
+
         // Reads the frame buffer into a special struct which
         // gives us the ability to read its information.
         // We can now read the ID of the framebuffer.
@@ -178,7 +179,7 @@ void test1(framebuffer *fb) {
             set_pixel(fb, j, i, 0xF800);
         }
         sleepms(200);
-    }
+}
 
     for (i = 7; i != 255 ; i--) {
         for (j = 0; j < 8; j++) {
@@ -236,31 +237,31 @@ int main(void) {
     printf("Temperature from pressure: %f\n", get_temperature_from_pressure(sense));
     printf("Humidity: %f\n", get_humidity(sense));
     printf("Pressure: %f\n", get_pressure(sense));
-    
+
     ori = get_orientation_radians(sense);
     printf("Orientation radians: roll: %f, pitch:%f, yaw: %f\n", ori.roll, ori.pitch, ori.yaw);
-    
+
     ori = get_orientation_degrees(sense);
-    printf("Orientation degrees: roll: %f, pitch:%f, yaw: %f\n", ori.roll, ori.pitch, ori.yaw);   
+    printf("Orientation degrees: roll: %f, pitch:%f, yaw: %f\n", ori.roll, ori.pitch, ori.yaw);
 
     ori = get_orientation(sense);
     printf("Orientation: roll: %f, pitch:%f, yaw: %f\n", ori.roll, ori.pitch, ori.yaw);
-    
-    printf("Compass: %f\n", get_compass(sense));   
-    
+
+    printf("Compass: %f\n", get_compass(sense));
+
     cor = get_compass_raw(sense);
     printf("Compass raw: x: %f, y:%f, z: %f\n", cor.x, cor.y, cor.z);
-    
+
     ori = get_gyroscope(sense);
     printf("Gyroscope: roll: %f, pitch:%f, yaw: %f\n", ori.roll, ori.pitch, ori.yaw);
- 
+
     cor = get_gyroscope_raw(sense);
     printf("Gyroscope raw: x: %f, y:%f, z: %f\n", cor.x, cor.y, cor.z);
-    
+
     ori = get_accelerometer(sense);
     printf("Accelerometer: roll: %f, pitch:%f, yaw: %f\n", ori.roll, ori.pitch, ori.yaw);
-    
-    cor = get_accelerometer_raw(sense); 
+
+    cor = get_accelerometer_raw(sense);
     printf("Accelerometer raw: x: %f, y:%f, z: %f\n", cor.x, cor.y, cor.z);
 
     /*draw_ok(fb);
