@@ -37,3 +37,6 @@ prog
 *.ini
 *.swp
 *.swo
+
+# ignore test folders
+test

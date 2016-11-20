@@ -1,54 +1,14 @@
-#include "RTIMULib.h"
-
-extern "C" {
-    #include "SenseHatSensors.h"
-}
-
-// Wrapper class for the RTIMU classes used by the Sense Hat API
-class Wrapper {
-public:
-    Wrapper();      // Constructor
-    ~Wrapper();     // Destructor
-    float get_humidity(void);
-    float get_pressure(void);
-    float temperature_from_humidity(void);
-    float temperature_from_pressure(void);
-    float temperature(void);
-    void set_imu_config(bool compass_enabled, bool gyro_enabled, bool accel_enabled);
-    Orientation orientation_radians(void);
-    Orientation orientation_degrees(void);
-    Orientation orientation(void);
-    float compass(void);
-    Coordinates compass_raw(void);
-    Orientation gyroscope(void);
-    Coordinates gyroscope_raw(void);
-    Orientation accelerometer(void);
-    Coordinates accelerometer_raw(void);
-private:
-    bool read_imu(void);
-    void init_imu(void);
-    void init_humidity(void);
-    void init_pressure(void);
-    RTIMUSettings *settings;
-    RTIMU *imu;
-    bool imu_init;          // Will be initialised as and when needed
-    RTPressure *pressure;
-    bool pressure_init;     // Will be initialised as and when needed
-    RTHumidity *humidity;
-    bool humidity_init;     // Will be initialised as and when needed
-    int imu_poll_interval;
-    bool _compass_enabled;
-    bool _gyro_enabled;
-    bool _accel_enabled;
-    Coordinates last_compass;
-    Orientation last_orientation;
-    Coordinates last_gyro;
-    Coordinates last_accel;
-};
+#include "SenseHatSensors.hpp"
 
 /* Constructor*/
 Wrapper::Wrapper() {
-    settings = new RTIMUSettings("RTIMULib");
+    open_framebuffer();
+
+    // Get config file used by the Python SenseHat library
+    char ini_name[80];
+    snprintf(ini_name, sizeof(ini_name), "%s/.config/sense_hat/RTIMULib", std::getenv("HOME"));
+
+    settings = new RTIMUSettings(ini_name);
     imu = RTIMU::createIMU(settings);
     if ((imu == NULL) || (imu->IMUType() == RTIMU_TYPE_NULL)) {
         throw "No IMU found";
@@ -291,6 +251,66 @@ Coordinates Wrapper::accelerometer_raw(void) {
     return last_accel;
 }
 
+/***** Framebuffer and LED *****/
+
+// Tries to locate and mmap the framebuffer
+void Wrapper::open_framebuffer(void) {
+    struct fb_fix_screeninfo fix_info;
+    glob_t globbuf;
+
+    int err = glob("/dev/fb*", 0, NULL, &globbuf);
+    if (!err) {
+        for (size_t i = 0; i < globbuf.gl_pathc; i++) {
+            int fd = open(globbuf.gl_pathv[i], O_RDWR);
+            if (fd < 0) {
+                continue;
+            }
+            ioctl(fd, FBIOGET_FSCREENINFO, &fix_info);
+            if (strcmp(RPI_SENSE_FB, fix_info.id) == 0) {
+                fb = (framebuffer *) mmap(0, 128, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+                close(fd);
+                if (!fb) {
+                    throw "Could not open framebuffer";
+                }
+                return;
+            }
+            close(fd);
+        }
+        globfree(&globbuf);
+    }
+    throw "Could not locate the framebuffer";
+}
+
+void Wrapper::set_pixel(uint16_t color, uint8_t x, uint8_t y) {
+    if (x > 7) {
+        throw "X coordinates value must be between 0 and 7";
+    }
+    if (y > 7) {
+        throw "Y coordinates value must be between 0 and 7";
+    }
+    fb->frame[y][x] = color;
+
+}
+void Wrapper::set_pixels(uint16_t color) {
+    uint8_t i, j;
+    for (i = 0; i < 8; i++) {
+        for (j = 0; j < 8; j++) {
+            fb->frame[i][j] = color;
+        }
+    }
+}
+
+void Wrapper::set_image(uint16_t image[64]) {
+    uint8_t i;
+    for (i = 0; i < 64; i++) {
+        fb->frame[i / 8][i % 8] = image[i];
+    }
+}
+
+void Wrapper::clear(void) {
+    memset(fb, 0, 128);
+}
+
 /***** Code for C functions *****/
 
 SenseHatSensors * SenseHatSensors_new(void) {
@@ -452,3 +472,34 @@ Coordinates get_accelerometer_raw(SenseHatSensors *sense) {
         return ret;
     }
 }
+
+/***** Framebuffer and LED *****/
+
+void set_pixel(SenseHatSensors *sense, uint16_t color, uint8_t x, uint8_t y) {
+    try {
+        Wrapper *wrapper = reinterpret_cast<Wrapper*>(sense);
+        wrapper->set_pixel(color, x, y);
+    } catch (...) {}
+}
+
+void set_pixels(SenseHatSensors *sense, uint16_t color) {
+    try {
+        Wrapper *wrapper = reinterpret_cast<Wrapper*>(sense);
+        wrapper->set_pixels(color);
+    } catch (...) {}
+}
+
+void set_image(SenseHatSensors *sense, uint16_t image[64]) {
+    try {
+        Wrapper *wrapper = reinterpret_cast<Wrapper*>(sense);
+        wrapper->set_image(image);
+    } catch (...) {}
+}
+
+void clear(SenseHatSensors *sense) {
+    try {
+        Wrapper *wrapper = reinterpret_cast<Wrapper*>(sense);
+        wrapper->clear();
+    } catch (...) {}
+}
+

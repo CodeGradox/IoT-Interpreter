@@ -23,7 +23,7 @@ $(MAIN): $(OBJS)
 main:
 	$(CC) $(CFLAGS) -c $<
 
-SenseHatSensors:
+SenseHatSensors: SenseHatSensors.hpp
 	$(CXX) $(CXXFLAGS) -c $<
 
 clean:
