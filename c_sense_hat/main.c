@@ -276,6 +276,7 @@ int main(void) {
 
     SenseHatSensors_delete(sense);
 Err:
+    close(fbfd);
     return ret;
 }
 

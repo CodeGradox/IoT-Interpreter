@@ -1,8 +1,6 @@
 #ifndef SENSE_HAT_WRAPPER
 #define SENSE_HAT_WRAPPER
 
-#include "stdint.h"
-
 typedef enum {
     TRUE = 1,
     FALSE = 0,

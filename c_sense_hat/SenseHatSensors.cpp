@@ -1,59 +1,15 @@
-#include "RTIMULib.h"
-#include "cstdlib"
+#include "SenseHatSensors.hpp"
 
-extern "C" {
-    #include "SenseHatSensors.h"
-}
-
-// Wrapper class for the RTIMU classes used by the Sense Hat API
-class Wrapper {
-public:
-    Wrapper();      // Constructor
-    ~Wrapper();     // Destructor
-    float get_humidity(void);
-    float get_pressure(void);
-    float temperature_from_humidity(void);
-    float temperature_from_pressure(void);
-    float temperature(void);
-    void set_imu_config(bool compass_enabled, bool gyro_enabled, bool accel_enabled);
-    Orientation orientation_radians(void);
-    Orientation orientation_degrees(void);
-    Orientation orientation(void);
-    float compass(void);
-    Coordinates compass_raw(void);
-    Orientation gyroscope(void);
-    Coordinates gyroscope_raw(void);
-    Orientation accelerometer(void);
-    Coordinates accelerometer_raw(void);
-private:
-    bool read_imu(void);
-    void init_imu(void);
-    void init_humidity(void);
-    void init_pressure(void);
-    RTIMUSettings *settings;
-    RTIMU *imu;
-    bool imu_init;          // Will be initialised as and when needed
-    RTPressure *pressure;
-    bool pressure_init;     // Will be initialised as and when needed
-    RTHumidity *humidity;
-    bool humidity_init;     // Will be initialised as and when needed
-    int imu_poll_interval;
-    bool _compass_enabled;
-    bool _gyro_enabled;
-    bool _accel_enabled;
-    Coordinates last_compass;
-    Orientation last_orientation;
-    Coordinates last_gyro;
-    Coordinates last_accel;
-
-    uint16_t frame[8][8];
-};
+/*std::string get_framebuffer_path(const char *dev_name) {
+    
+    return std::string("");
+}*/
 
 /* Constructor*/
 Wrapper::Wrapper() {
+    // Get config file used by the Python SenseHat library
     char ini_name[80];
     snprintf(ini_name, sizeof(ini_name), "%s/.config/sense_hat/RTIMULib", std::getenv("HOME"));
-    printf("path: %s\n", ini_name);
 
     settings = new RTIMUSettings(ini_name);
     imu = RTIMU::createIMU(settings);
