@@ -15,7 +15,6 @@ extern "C" {
 #include "sys/ioctl.h"
 #include "linux/fb.h"
 #include "fcntl.h"
-#include "unistd.h"
 #include "string.h"
 #include "sys/mman.h"
 
